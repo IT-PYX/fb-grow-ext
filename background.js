@@ -146,6 +146,12 @@ async function executeRunCycle() {
     // Wait an extra 4 seconds for Facebook SPA scripts and UI to hydrate
     await sleep(4000);
 
+    // Parse safe numbers for delays
+    let minDelaySec = parseInt(data.minDelaySec, 10);
+    let maxDelaySec = parseInt(data.maxDelaySec, 10);
+    if (isNaN(minDelaySec) || minDelaySec < 1) minDelaySec = 8;
+    if (isNaN(maxDelaySec) || maxDelaySec < minDelaySec) maxDelaySec = Math.max(minDelaySec, 16);
+
     // Send instruction to content script to begin process
     let response = null;
     for (let attempts = 0; attempts < 5; attempts++) {
@@ -153,9 +159,9 @@ async function executeRunCycle() {
         response = await chrome.tabs.sendMessage(tab.id, {
           action: 'START_CYCLE',
           keyword: keyword,
-          maxRequests: data.maxPerCycle || 5,
-          minDelaySec: data.minDelaySec || 8,
-          maxDelaySec: data.maxDelaySec || 16,
+          maxRequests: parseInt(data.maxPerCycle, 10) || 5,
+          minDelaySec: minDelaySec,
+          maxDelaySec: maxDelaySec,
           filterByBio: data.filterByBio !== undefined ? data.filterByBio : true,
           skipNameOnlyMatch: data.skipNameOnlyMatch !== undefined ? data.skipNameOnlyMatch : true,
           expertiseKeywords: data.expertiseKeywords || DEFAULT_SETTINGS.expertiseKeywords

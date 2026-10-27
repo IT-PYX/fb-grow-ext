@@ -95,6 +95,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Settings Saved Successfully!');
   });
 
+  // Auto-save delay inputs on change
+  minDelayInput.addEventListener('change', async () => {
+    await saveCurrentFormSettings();
+  });
+  maxDelayInput.addEventListener('change', async () => {
+    await saveCurrentFormSettings();
+  });
+
   // Reset Stats button
   btnResetStats.addEventListener('click', async () => {
     const resetStats = {
@@ -157,10 +165,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       maxPerCycleInput.value = state.maxPerCycle;
     }
     if (state.minDelaySec !== undefined) {
-      minDelayInput.value = state.minDelaySec;
+      minDelayInput.value = Math.max(1, parseInt(state.minDelaySec, 10) || 8);
     }
     if (state.maxDelaySec !== undefined) {
-      maxDelayInput.value = state.maxDelaySec;
+      const minVal = parseInt(minDelayInput.value, 10) || 1;
+      maxDelayInput.value = Math.max(minVal, parseInt(state.maxDelaySec, 10) || 16);
     }
     if (state.autoCloseTab !== undefined) {
       autoCloseTabInput.checked = state.autoCloseTab;
@@ -314,8 +323,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const intervalMinutes = parseInt(intervalSelect.value, 10) || 60;
     const maxPerCycle = Math.min(30, Math.max(1, parseInt(maxPerCycleInput.value, 10) || 5));
-    const minDelaySec = Math.max(4, parseInt(minDelayInput.value, 10) || 8);
-    const maxDelaySec = Math.max(minDelaySec + 2, parseInt(maxDelayInput.value, 10) || 16);
+
+    let minDelaySec = parseInt(minDelayInput.value, 10);
+    let maxDelaySec = parseInt(maxDelayInput.value, 10);
+
+    if (isNaN(minDelaySec) || minDelaySec < 1) minDelaySec = 1;
+    if (isNaN(maxDelaySec) || maxDelaySec < 1) maxDelaySec = minDelaySec;
+
+    // Ensure minDelaySec <= maxDelaySec; if user entered reversed values, swap them
+    if (minDelaySec > maxDelaySec) {
+      const temp = minDelaySec;
+      minDelaySec = maxDelaySec;
+      maxDelaySec = temp;
+    }
+
+    // Keep UI inputs synced with sanitized numbers
+    minDelayInput.value = minDelaySec;
+    maxDelayInput.value = maxDelaySec;
+
     const autoCloseTab = autoCloseTabInput.checked;
     const filterByBio = filterByBioInput.checked;
     const skipNameOnlyMatch = skipNameOnlyMatchInput.checked;

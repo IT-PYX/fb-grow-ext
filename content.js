@@ -39,6 +39,11 @@ async function runFriendAddCycle(config) {
     expertiseKeywords = []
   } = config;
 
+  let minSec = parseInt(minDelaySec, 10);
+  let maxSec = parseInt(maxDelaySec, 10);
+  if (isNaN(minSec) || minSec < 1) minSec = 8;
+  if (isNaN(maxSec) || maxSec < minSec) maxSec = minSec;
+
   isCycleRunning = true;
   shouldStop = false;
 
@@ -152,8 +157,34 @@ async function runFriendAddCycle(config) {
           }
 
           // 4. Random human-like delay between requests
-          const delaySeconds = Math.floor(minDelaySec + Math.random() * (maxDelaySec - minDelaySec + 1));
-          await countdownDelay(delaySeconds);
+          // Check if user updated delay settings during runtime
+          try {
+            const liveSettings = await chrome.storage.local.get(['minDelaySec', 'maxDelaySec']);
+            if (liveSettings.minDelaySec !== undefined) {
+              const liveMin = parseInt(liveSettings.minDelaySec, 10);
+              if (!isNaN(liveMin) && liveMin >= 1) minSec = liveMin;
+            }
+            if (liveSettings.maxDelaySec !== undefined) {
+              const liveMax = parseInt(liveSettings.maxDelaySec, 10);
+              if (!isNaN(liveMax) && liveMax >= minSec) maxSec = liveMax;
+            }
+          } catch (e) {
+            // Keep current values on storage read error
+          }
+
+          if (maxSec < minSec) maxSec = minSec;
+
+          const delaySeconds = (minSec === maxSec)
+            ? minSec
+            : Math.floor(minSec + Math.random() * (maxSec - minSec + 1));
+
+          chrome.runtime.sendMessage({
+            action: 'CONTENT_LOG',
+            message: `[Delay] Waiting ${delaySeconds}s before next request (Range: ${minSec}s - ${maxSec}s)`,
+            type: 'info'
+          });
+
+          await countdownDelay(delaySeconds, minSec, maxSec);
         } else {
           await sleep(2000);
         }
@@ -434,11 +465,16 @@ function checkFacebookBlockOrWarning() {
 /**
  * Countdown timer with visual seconds updates
  */
-async function countdownDelay(seconds) {
+async function countdownDelay(seconds, minSec = null, maxSec = null) {
+  if (seconds <= 0) return;
+  const rangeInfo = (minSec !== null && maxSec !== null) ? ` (${minSec}s - ${maxSec}s)` : '';
   for (let s = seconds; s > 0; s--) {
     if (shouldStop) break;
-    updateOverlayStatus(`Waiting ${s}s before next request (human simulation)...`);
+    updateOverlayStatus(`Waiting ${s}s before next request${rangeInfo}...`);
     await sleep(1000);
+  }
+  if (!shouldStop) {
+    updateOverlayStatus('Delay finished. Searching next candidate...');
   }
 }
 

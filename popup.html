@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FB Auto Friend Request Bot</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-circle">FB</div>
+        <div>
+          <h1>Auto Friend Bot</h1>
+          <span class="subtext">24/7 Keyword Friend Request Scheduler</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span id="botStatusBadge" class="status-badge stopped">STOPPED</span>
+      </div>
+    </header>
+
+    <!-- Main Countdown & Quick Controls -->
+    <div class="status-card">
+      <div class="countdown-row">
+        <span class="countdown-label">Next Automated Run:</span>
+        <span id="nextRunCountdown" class="countdown-value">Paused</span>
+      </div>
+      <div class="action-buttons">
+        <button id="btnToggleBot" class="btn btn-primary">
+          <span class="btn-icon">▶</span>
+          <span id="btnToggleText">Start Automation</span>
+        </button>
+        <button id="btnRunNow" class="btn btn-secondary" title="Run a search cycle immediately">
+          <span>⚡ Run Now</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="settings">⚙️ Settings</button>
+      <button class="tab-btn" data-tab="stats">📊 Statistics</button>
+      <button class="tab-btn" data-tab="logs">📜 Live Logs</button>
+      <button class="tab-btn" data-tab="guide">❓ Instructions</button>
+    </nav>
+
+    <!-- Tab 1: Settings -->
+    <div id="tab-settings" class="tab-content active">
+      <div class="form-group">
+        <label for="keywordsInput">
+          <strong>Search Keywords</strong>
+          <span class="help-hint">(Comma or new-line separated)</span>
+        </label>
+        <textarea id="keywordsInput" rows="3" placeholder="e.g. Digital Marketing, Real Estate, E-commerce, Shopify"></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="intervalSelect"><strong>Repeat Every:</strong></label>
+          <select id="intervalSelect">
+            <option value="30">30 Minutes</option>
+            <option value="60" selected>1 Hour (Recommended)</option>
+            <option value="120">2 Hours (Very Safe)</option>
+            <option value="180">3 Hours</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="maxPerCycleInput"><strong>Requests per Run:</strong></label>
+          <input type="number" id="maxPerCycleInput" min="1" max="25" value="5">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="minDelayInput"><strong>Min Delay (sec):</strong></label>
+          <input type="number" id="minDelayInput" min="4" max="60" value="8">
+        </div>
+        <div class="form-group">
+          <label for="maxDelayInput"><strong>Max Delay (sec):</strong></label>
+          <input type="number" id="maxDelayInput" min="6" max="120" value="16">
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" id="autoCloseTabInput" checked>
+          <span>Auto-close search tab when cycle finishes</span>
+        </label>
+      </div>
+
+      <!-- Smart Knowledge & Bio Filter -->
+      <div class="filter-card">
+        <div class="filter-card-header">
+          <span>🎯 Smart Expertise & Bio Verification</span>
+        </div>
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" id="filterByBioInput" checked>
+            <span><strong>Verify Knowledge in Bio:</strong> Adds people who have skills/work/study in bio</span>
+          </label>
+        </div>
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" id="skipNameOnlyMatchInput" checked>
+            <span><strong>Skip Name-only matches:</strong> Do NOT add if keyword is only in profile name</span>
+          </label>
+        </div>
+        <div class="form-group" style="margin-top: 8px; margin-bottom: 4px;">
+          <label for="expertiseKeywordsInput">
+            <strong>Expertise / Learning Indicators</strong>
+            <span class="help-hint">(Comma separated)</span>
+          </label>
+          <textarea id="expertiseKeywordsInput" rows="2" placeholder="works at, studied, student, specialist, expert, freelancer, developer, marketer, intern, founder"></textarea>
+        </div>
+      </div>
+
+      <button id="btnSaveSettings" class="btn btn-save">💾 Save Settings</button>
+    </div>
+
+    <!-- Tab 2: Statistics -->
+    <div id="tab-stats" class="tab-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number" id="statTotalSent">0</span>
+          <span class="stat-label">Total Requests Sent</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="statLastSent">0</span>
+          <span class="stat-label">Last Cycle Count</span>
+        </div>
+      </div>
+
+      <div class="info-list">
+        <div class="info-row">
+          <span class="info-label">Active / Next Keyword:</span>
+          <span class="info-value" id="statCurrentKeyword">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Last Run Completed:</span>
+          <span class="info-value" id="statLastRunTime">Never</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Automation Status:</span>
+          <span class="info-value" id="statSchedulerStatus">Stopped</span>
+        </div>
+      </div>
+
+      <button id="btnResetStats" class="btn btn-outline" style="margin-top:12px;">Reset Stats</button>
+    </div>
+
+    <!-- Tab 3: Logs -->
+    <div id="tab-logs" class="tab-content">
+      <div class="logs-header">
+        <span>Activity Log (Last 50 events)</span>
+        <button id="btnClearLogs" class="btn-link">Clear</button>
+      </div>
+      <div id="logsContainer" class="logs-box">
+        <div class="log-item empty">No logs yet.</div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Guide (Urdu & English) -->
+    <div id="tab-guide" class="tab-content">
+      <div class="guide-box">
+        <h3>🇵🇰 اردو ہدایات (Urdu Guide)</h3>
+        <p>1. <strong>Keywords درج کریں:</strong> وہ الفاظ لکھیں جن کے مطابق آپ فیس بک پر لوگوں کو فرینڈ ریکوئسٹ بھیجنا چاہتے ہیں (مثلاً: Real Estate, Marketing, Karachi)۔</p>
+        <p>2. <strong>Interval منتخب کریں:</strong> ہر 1 گھنٹے یا 2 گھنٹے بعد بوٹ خودکار طور پر فیس بک کھولے گا اور فرینڈ ریکوئسٹس بھیجے گا۔</p>
+        <p>3. <strong>اکاؤنٹ سیفٹی (Account Safety):</strong> فیس بک پر پابندی سے بچنے کے لیے ایک وقت میں 5 سے 10 سے زیادہ ریکوئسٹ نہ بھیجیں اور Delay کم از کم 8 سے 16 سیکنڈز رکھیں۔</p>
+        <p>4. <strong>Start Automation</strong> پر کلک کریں — بوٹ اب بیک گراؤنڈ میں ہر گھنٹے بعد خود چلے گا اور آپ کا براؤزر کھلا ہونا چاہیے۔</p>
+        <p>5. <strong>مہارت اور بائیو فلٹر (Bio/Expertise Filter):</strong> بوٹ صرف ان پروفائلز کو ریکوئسٹ بھیجے گا جن کے بائیو، کام (Works at) یا پڑھائی (Studied at) میں بنیادی معلومات یا مہارت لکھی ہو۔ صرف پروفائل نام میں کی ورڈ ملنے پر جعلی یا غیر متعلقہ اکاؤنٹس کو خود بخود اسکیپ (Skip) کر دے گا۔</p>
+        <hr/>
+        <h3>🇬🇧 English Guidelines</h3>
+        <p>• <strong>Bio & Expertise Verification:</strong> Only adds persons who have knowledge/work/study in their bio. Profiles with only the keyword in their name are skipped.</p>
+        <p>• <strong>Keep Chrome open:</strong> The background scheduler runs while Chrome is open (even minimized).</p>
+        <p>• <strong>Keyword Rotation:</strong> The bot automatically rotates between your specified keywords on each cycle.</p>
+        <p>• <strong>Anti-Ban Protection:</strong> Randomized human clicks and intervals prevent Facebook checkpoints.</p>
+      </div>
+    </div>
+
+    <!-- Footer Toast -->
+    <div id="toast" class="toast">Settings Saved!</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

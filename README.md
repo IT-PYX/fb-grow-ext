@@ -1,86 +1,103 @@
 # Facebook Auto Friend Request Bot (Chrome Extension - Manifest V3)
 
-یہ ایک مکمل **Chrome Extension** ہے جو خودکار طور پر فیس بک پر آپ کے دیے گئے کی ورڈز (Keywords) کو سرچ کرتی ہے اور متعلقہ لوگوں کو فرینڈ ریکوئسٹ بھیجتی ہے۔ یہ ہر **1 یا 2 گھنٹے** بعد خود بخود نیا سرچ رن چلاتی ہے اور بغیر رکے لگاتار کام کرتی رہتی ہے۔
+A powerful, automated **Chrome Extension (Manifest V3)** designed to help you organically grow your Facebook network. It automatically searches for people based on targeted keywords, validates their bios and background, sends friend requests with human-like randomized delays, and runs on a recurring schedule (every 30 minutes, 1 hour, or 2 hours) without manual intervention.
 
 ---
 
-## 🚀 خصوصیات (Key Features)
+## 🚀 Key Features
 
-1. **مکمل خودکار شیڈولر (Auto Scheduler):**
-   - ہر 1 گھنٹے یا 2 گھنٹے (یا 30 منٹ) بعد خودکار طور پر فیس بک ٹیب کھول کر فرینڈ ریکوئسٹس بھیجتا ہے۔
-   - ایک سائیکل ختم ہونے کے بعد ٹیب خود بخود بند ہو جاتا ہے اور اگلی سائیکل کے لیے ٹائمر شروع ہو جاتا ہے۔
+1. **Automated Scheduler & Background Runner:**
+   - Automatically opens a Facebook search tab at configured intervals (e.g., every 30 mins, 1 hour, or 2 hours).
+   - Sends the target number of friend requests and automatically closes the tab once the run is complete.
+   - Schedules the next cycle seamlessly in the background using Chrome Alarms.
 
-2. **کی ورڈ روٹیشن (Keyword Rotation):**
-   - آپ متعدد کی ورڈز دے سکتے ہیں (مثلاً: `Digital Marketing, Real Estate, E-commerce, Karachi`)۔
-   - بوٹ ہر گھنٹے بعد باری باری اگلے کی ورڈ پر کام کرتا ہے۔
+2. **Keyword Rotation:**
+   - Define multiple target keywords or niches (e.g., `Digital Marketing, Real Estate, E-commerce, Software Engineer`).
+   - Automatically rotates to the next keyword on each run to ensure diverse and balanced audience expansion.
 
-3. **سمارٹ بائیو اور مہارت کی تصدیق (Smart Bio & Expertise Filter):**
-   - **صرف نام میچ نہیں کرتا:** اگر کسی نے صرف اپنے پروفائل نام میں کی ورڈ لکھا ہو (جیسے کوئی فیک پیج یا نام "Digital Marketing Expert") تو بوٹ اسے اسکیپ (Skip) کر دے گا۔
-   - **بائیو میں مہارت یا علم کی تصدیق:** یہ دیکھتا ہے کہ شخص کے بائیو، کام (Works at...) یا پڑھائی (Studied at...) میں اس فیلڈ سے متعلق معلومات، تجربہ یا بنیادی علم (مثلاً: Specialist, Developer, Marketer, Student, Intern, Freelancer) درج ہو، تب ہی ریکوئسٹ بھیجتا ہے۔
+3. **Smart Bio & Expertise Filter:**
+   - **Prevents False Matches:** Avoids profiles where the keyword only appears in the display name (e.g., spam pages or fake names).
+   - **Verifies Real Experience:** Inspects profile bios, work history (*Works at...*), and education (*Studied at...*) for verified field experience, role titles, and relevant keywords (e.g., *Specialist, Developer, Marketer, Founder, Consultant*) before sending a request.
 
-4. **اکاؤنٹ سیفٹی اور اینٹی بین سسٹم (Anti-Ban Protection):**
-   - ریکوئسٹس کے درمیان اصلی انسان جیسا وقفہ (Random Delays: 8 سے 16 سیکنڈز)۔
-   - ہر گھنٹے کے لیے ریکوئسٹس کی حد (مثلاً: 5 سے 10 ریکوئسٹس فی رن)۔
-   - اگر فیس بک کوئی وارننگ یا بلاک دکھائے تو بوٹ فوراً خود کو محفوظ طریقے سے روک لیتا ہے۔
+4. **Anti-Ban & Account Protection:**
+   - **Human-like Delays:** Randomized intervals (8 to 16 seconds) between consecutive friend requests.
+   - **Configurable Limits:** Set safe batch limits per run (e.g., 5 to 10 requests per session).
+   - **Detection Safeguards:** Automatically pauses automation immediately if Facebook displays a limit warning or temporary block.
 
-4. **اسکرین پر لائیو اوورلے (On-Screen Floating Badge):**
-   - فیس بک پیج پر نیچے دائیں کونے میں لائیو پروگریس بار، کاؤنٹ اور "Stop" بٹن دکھاتا ہے۔
+5. **On-Screen Floating Status Badge:**
+   - Displays a non-intrusive floating HUD at the bottom-right corner of the Facebook page.
+   - Shows live progress, request counter, status messages, and an instant **Stop** button.
 
-5. **لائیو لاگز اور شماریات (Live Logs & Stats):**
-   - کل کتنی ریکوئسٹس گئیں، اگلی رن کب ہوگی، اور ہر ایکشن کا تفصیلی لاگ۔
+6. **Live Statistics & Activity Logs:**
+   - Track total friend requests sent.
+   - Real-time countdown timer showing when the next automated run will trigger.
+   - Detailed activity logs for full transparency.
 
 ---
 
-## 🛠️ کروم میں انسٹال کرنے کا طریقہ (How to Install in Chrome)
+## 🛠️ How to Install in Chrome / Edge / Brave
 
-1. اپنا براؤزر کھولیں (**Google Chrome**, **Brave**, یا **Microsoft Edge**)۔
-2. ایڈریس بار میں لکھیں:  
-   `chrome://extensions/`  
-   اور **Enter** دبائیں۔
-3. اوپر دائیں کونے (Top Right) میں **"Developer mode"** کا بٹن آن کریں:
+1. Open your Chromium-based browser (**Google Chrome**, **Brave**, or **Microsoft Edge**).
+2. Navigate to:  
+   ```text
+   chrome://extensions/
    ```
+3. Enable **Developer mode** using the toggle switch in the top-right corner:
+   ```text
    [ Developer mode  ● ]
    ```
-4. اب اوپر بائیں کونے میں **"Load unpacked"** کا بٹن نمودار ہوگا، اس پر کلک کریں۔
-5. یہ والا فولڈر سلیکٹ کریں:  
-   `C:\Users\fatim\Desktop\fb extenstion`
-6. ایکسٹینشن فوراً انسٹال ہو جائے گی!
-7. براؤزر میں اوپر Extensions آئیکن (پزل جیسا نشان) پر کلک کر کے **"FB Auto Friend Request Bot"** کو پن (Pin) کر لیں۔
+4. Click the **Load unpacked** button in the top-left corner.
+5. Select the extension directory:
+   ```text
+   C:\Users\fatim\Desktop\fb extenstion
+   ```
+6. The extension is now installed!
+7. Click the Chrome Extensions icon (puzzle piece) in the toolbar and **pin** **FB Auto Friend Request Bot** for quick access.
 
 ---
 
-## 📖 استعمال کرنے کا طریقہ (How to Use)
+## 📖 How to Use
 
-1. ایکسٹینشن کے آئیکن پر کلک کریں، پاپ اپ ونڈو کھل جائے گی۔
-2. **Keywords درج کریں:**  
-   مثلاً: `Digital Marketing, Graphic Designer, Real Estate, Lahore`
-3. **Repeat Every منتخب کریں:**  
-   `1 Hour` یا `2 Hours` منتخب کریں۔
-4. **Requests per Run سیٹ کریں:**  
-   ہمیشہ 5 سے 8 ریکوئسٹس فی رن رکھیں تاکہ اکاؤنٹ 100% محفوظ رہے۔
-5. **💾 Save Settings** پر کلک کریں۔
-6. اب **▶ Start Automation** کا بٹن دبا دیں۔
-7. بوٹ فوراً پہلی بار فیس بک سرچ کھولے گا، فرینڈز ایڈ کرے گا، ٹیب بند کرے گا، اور پھر اگلے 1-2 گھنٹے بعد اگلی سائیکل خودکار طور پر چلائے گا۔
+1. Click the extension icon in your browser toolbar to open the control popup.
+2. **Enter Keywords:**  
+   Provide comma-separated keywords or niches (e.g., `Digital Marketing, Graphic Designer, Real Estate, Karachi`).
+3. **Select Repeat Interval:**  
+   Choose your preferred scheduling frequency (e.g., `1 Hour` or `2 Hours`).
+4. **Set Requests per Run:**  
+   Recommended: `5` to `8` requests per session to keep your account safe.
+5. Click **💾 Save Settings**.
+6. Click **▶ Start Automation**.
+7. The bot will initiate its first run immediately, add the targeted profiles, close the tab, and schedule subsequent runs automatically.
 
-> **نوٹ:** جب تک آپ کا کروم براؤزر کھلا رہے گا (بھلے منمائز ہو)، بوٹ بیک گراؤنڈ میں وقت پر خودکار چلتا رہے گا۔
-
----
-
-## 📁 فائلز کی تفصیل (Project Structure)
-
-- `manifest.json`: کروم ایکسٹینشن (Manifest V3) کی کنفیگریشن۔
-- `background.js`: بیک گراؤنڈ سروس ورکر جو گھنٹے وار الارمز اور شیڈولنگ کو ہینڈل کرتا ہے۔
-- `content.js`: فیس بک پیج پر کام کرنے والا اسکرپٹ جو ایڈ فرینڈ بٹن تلاش اور کلک کرتا ہے۔
-- `content.css`: فیس بک پر نظر آنے والے تیرتے ہوئے اوورلے بیج کے اسٹائلز۔
-- `popup.html`: ایکسٹینشن کی مین پاپ اپ اسکرین۔
-- `popup.css`: خوبصورت جدید فیس بک تھیم اسٹائلز۔
-- `popup.js`: سیٹنگز محفوظ کرنے، ٹائمر، اور لاگز سنبھالنے والا کنٹرولر۔
-- `icons/`: ایکسٹینشن کے آئیکونز۔
+> **Note:** As long as Chrome remains open (even minimized or running in the background), the extension will continue to execute scheduled cycles on time.
 
 ---
 
-## ⚠️ ضروری احتیاطی تدابیر (Safety Guidelines)
+## 📁 Project Structure
 
-- فیس بک پر ایک دن میں 50 سے 70 سے زیادہ نئے لوگوں کو ریکوئسٹس مت بھیجیں۔
-- ڈیلے (Delay) کو کم از کم 8 سے 16 سیکنڈز پر رکھیں (پرانے 1 سیکنڈ والے اسکرپٹ سے فیس بک اکاؤنٹ بلاک کر دیتا ہے)۔
-- یقینی بنائیں کہ آپ اپنے براؤزر میں فیس بک پر لاگ ان ہیں۔
+```text
+├── manifest.json       # Chrome Extension Manifest V3 configuration & permissions
+├── background.js       # Background service worker (Chrome alarms, lifecycle & scheduling)
+├── content.js          # In-page script (DOM interaction, bio filtering & button clicks)
+├── content.css         # Styles for the floating on-screen badge HUD
+├── popup.html          # Extension control panel popup UI
+├── popup.css           # Modern Facebook-themed styling for popup
+├── popup.js            # Popup logic, settings storage, timer, and logging
+├── icons/              # Extension icons (16x16, 48x48, 128x128)
+└── README.md           # Project documentation
+```
+
+---
+
+## ⚠️ Safety Guidelines & Best Practices
+
+- **Daily Limits:** We recommend keeping total daily friend requests under 50–70 requests per day for aged accounts, and 20–30 per day for newer accounts.
+- **Natural Delays:** Keep delays between 8 to 16 seconds to emulate genuine user interaction.
+- **Account State:** Ensure you are actively logged into your Facebook account in Chrome before starting the bot.
+- **Gradual Warm-Up:** If your account is new, start with 3–5 requests per run and gradually increase over time.
+
+---
+
+## 📄 License & Disclaimer
+
+This project is intended strictly for educational and productivity purposes. Automated interaction with Facebook is subject to Meta's Terms of Service. Use responsibly and adhere to platform rate limits.

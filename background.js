@@ -14,17 +14,6 @@ const DEFAULT_SETTINGS = {
   minDelaySec: 8,      // min delay between clicks
   maxDelaySec: 16,     // max delay between clicks
   autoCloseTab: true,  // close tab when done
-  // Smart Knowledge/Bio Filter Settings:
-  filterByBio: true,           // Verify expertise/knowledge in bio or work, don't just match profile name
-  skipNameOnlyMatch: true,     // Skip profile if keyword is only in their name
-  expertiseKeywords: [
-    'works at', 'worked at', 'studied', 'student', 'specialist',
-    'expert', 'consultant', 'freelancer', 'developer', 'marketer',
-    'engineer', 'designer', 'manager', 'founder', 'ceo', 'director',
-    'intern', 'beginner', 'learner', 'enthusiast', 'academy',
-    'institute', 'university', 'certified', 'agency', 'solutions',
-    'professional', 'officer', 'lead', 'executive'
-  ],
   activeTabId: null,
   isCycleActive: false,
   stats: {
@@ -107,10 +96,7 @@ async function executeRunCycle() {
     'maxDelaySec',
     'isCycleActive',
     'activeTabId',
-    'intervalMinutes',
-    'filterByBio',
-    'skipNameOnlyMatch',
-    'expertiseKeywords'
+    'intervalMinutes'
   ]);
 
   if (data.isCycleActive) {
@@ -161,10 +147,7 @@ async function executeRunCycle() {
           keyword: keyword,
           maxRequests: parseInt(data.maxPerCycle, 10) || 5,
           minDelaySec: minDelaySec,
-          maxDelaySec: maxDelaySec,
-          filterByBio: data.filterByBio !== undefined ? data.filterByBio : true,
-          skipNameOnlyMatch: data.skipNameOnlyMatch !== undefined ? data.skipNameOnlyMatch : true,
-          expertiseKeywords: data.expertiseKeywords || DEFAULT_SETTINGS.expertiseKeywords
+          maxDelaySec: maxDelaySec
         });
         if (response && response.received) break;
       } catch (err) {

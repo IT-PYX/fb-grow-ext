@@ -33,10 +33,7 @@ async function runFriendAddCycle(config) {
     keyword,
     maxRequests = 5,
     minDelaySec = 8,
-    maxDelaySec = 16,
-    filterByBio = true,
-    skipNameOnlyMatch = true,
-    expertiseKeywords = []
+    maxDelaySec = 16
   } = config;
 
   let minSec = parseInt(minDelaySec, 10);
@@ -47,7 +44,7 @@ async function runFriendAddCycle(config) {
   isCycleRunning = true;
   shouldStop = false;
 
-  createOrUpdateOverlay(keyword, 0, maxRequests, 'Initializing smart search...');
+  createOrUpdateOverlay(keyword, 0, maxRequests, 'Initializing search...');
 
   try {
     // Wait for page to settle
@@ -77,7 +74,7 @@ async function runFriendAddCycle(config) {
           break;
         }
 
-        updateOverlayStatus(`Searching for profiles with expertise (scroll ${scrollAttempts + 1}/${maxScrollAttempts})...`);
+        updateOverlayStatus(`Searching for people (scroll ${scrollAttempts + 1}/${maxScrollAttempts})...`);
         window.scrollBy({ top: 850, behavior: 'smooth' });
         scrollAttempts++;
         await sleep(3000);
@@ -87,43 +84,16 @@ async function runFriendAddCycle(config) {
       // Reset scroll attempts once we have buttons
       scrollAttempts = 0;
 
-      // 3. Process candidate buttons one by one and verify expertise/bio
-      let processedAnyInBatch = false;
-
+      // 3. Process candidate buttons one by one and send friend requests directly
       for (const targetBtn of buttons) {
         if (sentCount >= maxRequests || shouldStop) break;
 
         // Mark processed immediately so it's not repeatedly checked
         targetBtn.setAttribute('data-fb-bot-processed', 'true');
-        processedAnyInBatch = true;
 
-        // Evaluate profile card for bio / knowledge / expertise
-        const evalResult = evaluateProfileCard(targetBtn, keyword, {
-          filterByBio,
-          skipNameOnlyMatch,
-          expertiseKeywords
-        });
-
-        if (!evalResult.accept) {
-          // Profile didn't meet expertise / bio criteria
-          updateOverlayStatus(evalResult.reason, 'warning');
-          chrome.runtime.sendMessage({
-            action: 'CONTENT_LOG',
-            message: `[Filtered] ${evalResult.reason}`,
-            type: 'info'
-          });
-          await sleep(600); // brief pause before next
-          continue;
-        }
-
-        // Profile passed verification!
-        const profileName = evalResult.name || 'Profile';
-        updateOverlayStatus(`Verified: ${profileName} (${evalResult.matchReason}). Sending request...`);
-        chrome.runtime.sendMessage({
-          action: 'CONTENT_LOG',
-          message: `[Matched] ${profileName} - ${evalResult.matchReason}`,
-          type: 'success'
-        });
+        // Extract profile name for clean logging
+        const profileName = extractProfileName(targetBtn);
+        updateOverlayStatus(`Sending request to ${profileName}...`);
 
         // Scroll smoothly into view
         targetBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -146,6 +116,12 @@ async function runFriendAddCycle(config) {
             keyword: `${keyword} (${profileName})`
           });
 
+          chrome.runtime.sendMessage({
+            action: 'CONTENT_LOG',
+            message: `[Sent] Friend request sent to ${profileName}`,
+            type: 'success'
+          });
+
           // Check if a modal popped up (e.g. "Do you know this person?")
           await sleep(1500);
           handlePostClickModals();
@@ -157,7 +133,6 @@ async function runFriendAddCycle(config) {
           }
 
           // 4. Random human-like delay between requests
-          // Check if user updated delay settings during runtime
           try {
             const liveSettings = await chrome.storage.local.get(['minDelaySec', 'maxDelaySec']);
             if (liveSettings.minDelaySec !== undefined) {
@@ -197,7 +172,7 @@ async function runFriendAddCycle(config) {
       }
     }
 
-    const reason = shouldStop ? 'Stopped by user' : (sentCount >= maxRequests ? 'Target reached' : 'No more matching profiles found');
+    const reason = shouldStop ? 'Stopped by user' : (sentCount >= maxRequests ? 'Target reached' : 'No more people found');
     updateOverlayStatus(`Finished: ${reason}. Total sent: ${sentCount}`);
 
     // Report back to background service worker
@@ -293,109 +268,23 @@ function findCardContainer(buttonEl) {
 }
 
 /**
- * Extract profile name and bio/work/education text from card
+ * Extract profile name from card for activity logs
  */
-function extractProfileDetails(card, buttonEl) {
-  // 1. Extract Profile Name
-  let name = '';
+function extractProfileName(buttonEl) {
+  const card = findCardContainer(buttonEl);
+  if (!card) return 'Facebook User';
+
   const links = card.querySelectorAll('a[role="link"], a[href*="facebook.com/"], a[href^="/"], strong, h2, h3');
   for (const link of links) {
     if (buttonEl.contains(link) || link.contains(buttonEl)) continue;
     const txt = (link.innerText || link.textContent || '').trim();
     // Exclude button texts or meaningless noise
-    if (txt.length > 1 && !/^(add friend|message|remove|cancel|friend)/i.test(txt)) {
-      name = txt.split('\n')[0].trim();
-      break;
+    if (txt.length > 1 && !/^(add friend|message|remove|cancel|friend|دوست)/i.test(txt)) {
+      return txt.split('\n')[0].trim();
     }
   }
 
-  // 2. Full inner text of card
-  const fullText = (card.innerText || '').trim();
-
-  // 3. Extract Bio / Subtitle: remove the name and UI noise
-  let bio = fullText;
-  if (name) {
-    bio = bio.replace(name, ' ');
-  }
-
-  // Clean out common Facebook UI noise
-  const noiseRegex = /\b(add friend|message|remove|cancel request|mutual friends?|followers?|posts?|videos?|photos?|دوست بنائیں|دوست|پیغام|منسوخ)\b/gi;
-  bio = bio.replace(noiseRegex, ' ');
-  // Clean whitespace
-  bio = bio.replace(/\s+/g, ' ').trim();
-
-  return { name: name || 'Facebook User', bio, fullText };
-}
-
-/**
- * Evaluate if the profile demonstrates expertise or basic knowledge in the niche,
- * and ensure we don't just match profile names.
- */
-function evaluateProfileCard(buttonEl, keyword, options) {
-  const {
-    filterByBio = true,
-    skipNameOnlyMatch = true,
-    expertiseKeywords = []
-  } = options;
-
-  if (!filterByBio) {
-    return { accept: true, name: '', matchReason: 'Filters disabled' };
-  }
-
-  const card = findCardContainer(buttonEl);
-  const { name, bio } = extractProfileDetails(card, buttonEl);
-
-  const lowerName = name.toLowerCase();
-  const lowerBio = bio.toLowerCase();
-  const lowerKeyword = (keyword || '').toLowerCase().trim();
-
-  // 1. Check if the search keyword appeared only in the profile name
-  const keywordInName = lowerKeyword && lowerName.includes(lowerKeyword);
-  const keywordInBio = lowerKeyword && lowerBio.includes(lowerKeyword);
-
-  if (skipNameOnlyMatch && keywordInName && !keywordInBio) {
-    return {
-      accept: false,
-      reason: `Skipped "${name}": Keyword was only in the name, no verified bio.`
-    };
-  }
-
-  // 2. Check for knowledge or expertise indicators in bio/subtitle
-  let hasKnowledgeOrExpertise = false;
-  let matchReason = '';
-
-  // Does the keyword appear in their bio/work/education?
-  if (keywordInBio) {
-    hasKnowledgeOrExpertise = true;
-    matchReason = `Bio mentions "${keyword}"`;
-  }
-
-  // Check custom expertise/knowledge keywords (e.g. works at, studied, developer, student, expert...)
-  if (!hasKnowledgeOrExpertise && Array.isArray(expertiseKeywords)) {
-    for (const term of expertiseKeywords) {
-      const cleanTerm = term.trim().toLowerCase();
-      if (cleanTerm && lowerBio.includes(cleanTerm)) {
-        hasKnowledgeOrExpertise = true;
-        matchReason = `Bio has "${cleanTerm}"`;
-        break;
-      }
-    }
-  }
-
-  // If bio is essentially empty or has no signs of knowledge/expertise
-  if (!hasKnowledgeOrExpertise) {
-    return {
-      accept: false,
-      reason: `Skipped "${name}": Bio does not show relevant knowledge or expertise.`
-    };
-  }
-
-  return {
-    accept: true,
-    name: name,
-    bio: bio,
-    matchReason: matchReason
-  };
+  return 'Facebook User';
 }
 
 /**

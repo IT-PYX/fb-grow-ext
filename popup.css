@@ -287,32 +287,7 @@ textarea:focus, input:focus, select:focus {
   color: #b0b3b8;
 }
 
-/* Filter Card */
-.filter-card {
-  background: #1e2530;
-  border: 1px solid #2b4263;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 10px 0;
-}
 
-.filter-card-header {
-  font-size: 12px;
-  font-weight: 700;
-  color: #4599ff;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.filter-card .checkbox-group {
-  margin: 6px 0;
-}
-
-.filter-card .checkbox-group label {
-  color: #ccd0d5;
-}
 
 /* Stats */
 .stats-grid {

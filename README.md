@@ -1,6 +1,6 @@
 # Facebook Auto Friend Request Bot (Chrome Extension - Manifest V3)
 
-A powerful, automated **Chrome Extension (Manifest V3)** designed to help you organically grow your Facebook network. It automatically searches for people based on targeted keywords, validates their bios and background, sends friend requests with human-like randomized delays, and runs on a recurring schedule (every 30 minutes, 1 hour, or 2 hours) without manual intervention.
+A powerful, automated **Chrome Extension (Manifest V3)** designed to help you organically grow your Facebook network. It automatically searches for people based on targeted keywords, selects everyone appearing in the search results, sends friend requests with human-like randomized delays, and runs on a recurring schedule (every 30 minutes, 1 hour, or 2 hours) without manual intervention.
 
 ---
 
@@ -15,9 +15,9 @@ A powerful, automated **Chrome Extension (Manifest V3)** designed to help you or
    - Define multiple target keywords or niches (e.g., `Digital Marketing, Real Estate, E-commerce, Software Engineer`).
    - Automatically rotates to the next keyword on each run to ensure diverse and balanced audience expansion.
 
-3. **Smart Bio & Expertise Filter:**
-   - **Prevents False Matches:** Avoids profiles where the keyword only appears in the display name (e.g., spam pages or fake names).
-   - **Verifies Real Experience:** Inspects profile bios, work history (*Works at...*), and education (*Studied at...*) for verified field experience, role titles, and relevant keywords (e.g., *Specialist, Developer, Marketer, Founder, Consultant*) before sending a request.
+3. **Direct People Targeting:**
+   - **All-inclusive Matching:** Automatically targets and sends friend requests directly to all people returned by Facebook for your selected keywords without restrictive bio filters.
+   - **Seamless Audience Growth:** Ensures no relevant profile in your search results is skipped.
 
 4. **Anti-Ban & Account Protection:**
    - **Human-like Delays:** Randomized intervals (8 to 16 seconds) between consecutive friend requests.

@@ -17,9 +17,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const minDelayInput = document.getElementById('minDelayInput');
   const maxDelayInput = document.getElementById('maxDelayInput');
   const autoCloseTabInput = document.getElementById('autoCloseTabInput');
-  const filterByBioInput = document.getElementById('filterByBioInput');
-  const skipNameOnlyMatchInput = document.getElementById('skipNameOnlyMatchInput');
-  const expertiseKeywordsInput = document.getElementById('expertiseKeywordsInput');
   const btnSaveSettings = document.getElementById('btnSaveSettings');
 
   // Stats Elements
@@ -173,17 +170,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (state.autoCloseTab !== undefined) {
       autoCloseTabInput.checked = state.autoCloseTab;
-    }
-    if (state.filterByBio !== undefined) {
-      filterByBioInput.checked = state.filterByBio;
-    }
-    if (state.skipNameOnlyMatch !== undefined) {
-      skipNameOnlyMatchInput.checked = state.skipNameOnlyMatch;
-    }
-    if (state.expertiseKeywords && Array.isArray(state.expertiseKeywords)) {
-      expertiseKeywordsInput.value = state.expertiseKeywords.join(', ');
-    } else {
-      expertiseKeywordsInput.value = 'works at, studied, student, specialist, expert, consultant, freelancer, developer, marketer, engineer, intern, founder, certified';
     }
 
     // Status UI
@@ -342,14 +328,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     maxDelayInput.value = maxDelaySec;
 
     const autoCloseTab = autoCloseTabInput.checked;
-    const filterByBio = filterByBioInput.checked;
-    const skipNameOnlyMatch = skipNameOnlyMatchInput.checked;
-
-    const rawExpertise = expertiseKeywordsInput.value;
-    const expertiseKeywords = rawExpertise
-      .split(/[\n,]+/)
-      .map((k) => k.trim())
-      .filter((k) => k.length > 0);
 
     await chrome.storage.local.set({
       keywords: keywords.length > 0 ? keywords : ['Digital Marketing'],
@@ -357,10 +335,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       maxPerCycle,
       minDelaySec,
       maxDelaySec,
-      autoCloseTab,
-      filterByBio,
-      skipNameOnlyMatch,
-      expertiseKeywords: expertiseKeywords.length > 0 ? expertiseKeywords : ['works at', 'studied', 'expert']
+      autoCloseTab
     });
   }
 
